@@ -1,0 +1,13 @@
+node_modules
+README.md
+.vscode
+.dockerignore
+.gitignore
+package-lock.json
+build
+dist
+LICENSE
+package-lock.json
+.git
+.DS_Store
+.env
