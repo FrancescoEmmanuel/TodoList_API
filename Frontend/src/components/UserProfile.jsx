@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { FaEdit } from 'react-icons/fa';
-import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
-import { db, auth } from '../Firebase';
-import { imageDb } from '../Firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 } from "uuid";
 
 const UserProfile = ({ missedTaskCount }) => {
@@ -19,55 +15,8 @@ const UserProfile = ({ missedTaskCount }) => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const [image,setImage] = useState("")
-  const [imageUrl, setImageUrl] = useState([])
 
-
-  const handleSave = async () => {
-    // Update user profile data
-    const userDocRef = doc(db, 'users', auth.currentUser.uid);
-
-    const imageRef = ref(imageDb,`files/${v4()}`)
-    await uploadBytes(imageRef,image)
-    const downloadURL = await getDownloadURL(imageRef);
-
-    await updateDoc(userDocRef, {
-      name: editedName,
-      email: editedEmail,
-      profileImage: downloadURL,
-    });
-
-    console.log('Updated Data:', { editedName, editedEmail });
-    closeModal();
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImage(file);
-  };
-
-  useEffect(() => {
-    const userDocRef = doc(db, 'users', auth.currentUser.uid);
-
-    // Set up a real-time listener
-    const unsubscribe = onSnapshot(userDocRef, async (doc) => {
-      if (doc.exists()) {
-        setUserData(doc.data());
-
-        // Check if the user has a profile image
-        if (doc.data().profileImage) {
-          const downloadURL = await getDownloadURL(ref(imageDb, doc.data().profileImage));
-          setImageUrl(downloadURL);
-        }
-      }
-    });
-
-    return () => {
-      // Unsubscribe from the listener when the component unmounts
-      unsubscribe();
-    };
-  }, [auth.currentUser.uid]);
-
+  
   useEffect(() => {
     setEditedName(userData.name || '');
     setEditedEmail(userData.email || '');
@@ -78,7 +27,7 @@ const UserProfile = ({ missedTaskCount }) => {
       <div className="flex flex-col items-center space-y-4">
         <div className="relative w-24 h-24 mb-2">
           <img
-            src={imageUrl}  // Replace with the actual source for the profile photo
+             // Replace with the actual source for the profile photo
             alt="Profile Icon"
             className="object-cover w-full h-full rounded-full"
           />
