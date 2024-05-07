@@ -1,2 +1,3 @@
-# ToDoList-Firebase
-ToDoList WebApp with Firebase intergration
+# ToDO
+
+Live link: https://to-do-list-mu-gules.vercel.app/

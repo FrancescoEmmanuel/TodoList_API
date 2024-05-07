@@ -1,7 +1,7 @@
 import React from 'react';
 import TodoItem from './TodoItem';
 
-function TodoList({ todos, toggleTodo, deleteTodo, title, handleUpdate }) {
+function TodoList({ todos, toggleTodo, deleteTodo, title, date, handleUpdate }) {
   return (
     <div className="bg-zinc-800 p-4 rounded text-white font-semibold">
       <ul>
@@ -12,7 +12,7 @@ function TodoList({ todos, toggleTodo, deleteTodo, title, handleUpdate }) {
             key={todo.id}
             toggleTodo={toggleTodo}
             deleteTodo={deleteTodo}
-            handleUpdate={() => handleUpdate(todo.id)}
+            handleUpdate={() => handleUpdate(todo.id)} // Pass the id argument to handleUpdate
           />
         ))}
       </ul>

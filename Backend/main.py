@@ -2,18 +2,17 @@ from fastapi import FastAPI, HTTPException, Depends
 from typing import Optional, List, Dict
 from pydantic import BaseModel
 from uuid import UUID, uuid4
-from fastapi.middleware.cors import CORSMiddleware # import here
-
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# declare origin/s
+# Declare origins
 origins = [
     "http://localhost:5173",
     "localhost:5173"
 ]
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -22,81 +21,68 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
-# MODEL - usually put in a seperate file
-class TodoItem(BaseModel):
+# Define ToDoItem model
+class ToDoItem(BaseModel):
     id: UUID
     title: str
+    type: str
+    date: str
     description: str
-    
     completed: bool = False
 
-
+# Define UpdateTodo model
 class UpdateTodo(BaseModel):
     id: Optional[UUID] = None
     title: Optional[str] = None
+    type: Optional[str] = None
+    date: Optional[str] = None
     description: Optional[str] = None
-    Type: str
-    Date: str
     completed: Optional[bool] = None
 
-# STATIC/DUMMY DATA - try uncommenting it!
-# todos = {UUID('8ffadce6-60d4-431f-afdb-3c53aac9d3c1'): TodoItem(id=UUID('8ffadce6-60d4-431f-afdb-3c53aac9d3c1'), title='cook', completed=False), 
-#      UUID('33d1f1c4-1ce4-46f5-9b88-dc42b86a0083'): TodoItem(id=UUID('33d1f1c4-1ce4-46f5-9b88-dc42b86a0083'), title='clean', completed=True)}
-    
-# EMPTY STRING
-todos = {}
+# Empty todo dictionary
+todos: Dict[UUID, ToDoItem] = {}
 
-# To do methods
-# - fetch all todos
+# Fetch all todos
 @app.get('/todos')
 def get_all_todos():
-    print(todos)
     return list(todos.values())
 
-# - fetch by id
+# Fetch todo by id
 @app.get('/todos/{id}')
 def get_todo(id: UUID):
     if id not in todos:
-        return {"error":"title not found"}
+        raise HTTPException(status_code=404, detail="Todo not found")
     return todos[id]
 
-# - post new todo
+# Add new todo
 @app.post('/todos/new')
-def post_todo(todo: TodoItem) -> dict:
+def post_todo(todo: ToDoItem) -> dict:
     todos[todo.id] = todo
-    return {
-        "data": { "Todo added." }
-    }
+    return {"data": "Todo added."}
 
-# - updates todo
+# Update todo
 @app.put("/todos/edit/{id}")
 async def update_todo(id: UUID, todo: UpdateTodo):
     if id not in todos:
-        return {'error':'ID not found'}
+        raise HTTPException(status_code=404, detail="Todo not found")
 
-    if todo.title != None:
+    if todo.title is not None:
         todos[id].title = todo.title
-    
-    if todo.type != None:
+    if todo.type is not None:
         todos[id].type = todo.type
-    
-    if todo.date != None:
+    if todo.date is not None:
         todos[id].date = todo.date
-    
-    if todo.completed != None:
-        todos[id].completed = todo.completed
-    
-    if todo.description != None:
+    if todo.description is not None:
         todos[id].description = todo.description
+    if todo.completed is not None:
+        todos[id].completed = todo.completed
     
     return todos[id]
 
-# - removes an existing todo
+# Delete todo
 @app.delete("/todos/delete/{id}")
 async def delete_todo(id: UUID):
     if id not in todos:
-        return {"error":"ID not found"}
+        raise HTTPException(status_code=404, detail="Todo not found")
     del todos[id]
-    return {"msg":"todo has been deleted successfully"}
+    return {"msg": "Todo has been deleted successfully"}

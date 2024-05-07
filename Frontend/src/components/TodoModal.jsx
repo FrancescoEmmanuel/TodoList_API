@@ -3,9 +3,8 @@ import { MdOutlineClose } from 'react-icons/md';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Button from './Button';
-import axios from 'axios'; // Import Axios
 
-function TodoModal({ openModal, setModal, selectedItem, setSelectedItem, userId }) {
+function TodoModal({ openModal, setModal, handleSubmit, updateItem, selectedItem,setSelectedItem }) {
   const [mode, setMode] = useState('add'); // 'add' or 'update'
   const [title, setTitle] = useState('');
   const [type, setType] = useState('work');
@@ -28,51 +27,30 @@ function TodoModal({ openModal, setModal, selectedItem, setSelectedItem, userId 
     }
   }, [openModal, selectedItem]);
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const todoData = {
-        title,
-        type,
-        date,
-        description,
-        completed: false // Assuming completed is always false for new todos
-      };
 
-      if (mode === 'update' && selectedItem) {
-        // Update existing todo item
-        await axios.put(`http://localhost:8000/todos/${selectedItem.id}`, todoData);
-      } else {
-        // Add new todo item
-        await axios.post(`http://localhost:8000/todos`, todoData);
-        // Increment taskTodo in user document if needed
-        // This part is commented because it's not clear how user data is managed in your FastAPI backend
-        // You should adjust it according to your backend logic
-        /*
-        const userDocRef = doc(db, 'users', userId);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          await updateDoc(userDocRef, {
-            taskToComplete: userData.taskToComplete + 1,
-          });
-        }
-        */
-      }
-    } catch (err) {
-      console.error(`Error ${mode === 'update' ? 'updating' : 'adding'} item:`, err);
-      alert(`Error ${mode === 'update' ? 'updating' : 'adding'} item. Please try again.`);
-    } finally {
-      // Reset form state and close the modal
-      setMode('add');
-      setTitle('');
-      setType('work');
-      setDate('');
-      setDescription('');
-      setModal(false);
-      setSelectedItem(null); // Clear selectedItem
+  // TodoModal.js
+
+// Inside handleFormSubmit function
+  function handleFormSubmit(e) {
+    e.preventDefault();
+    
+    if (mode === 'update' && selectedItem) {
+      updateItem(selectedItem.id, { title, type, date, description });
+      setSelectedItem(null); 
+    } else {
+      const newItemData = { title, type, date, description, completed: false }; // Ensure all fields are included
+      handleSubmit(newItemData);
     }
-  };
+    
+    setMode('add');
+    setTitle('');
+    setType('work');
+    setDate('');
+    setDescription('');
+    setModal(false);
+  }
+
+  
 
   return (
     <div>
@@ -92,56 +70,60 @@ function TodoModal({ openModal, setModal, selectedItem, setSelectedItem, userId 
               <h1 className="text-white text-[1.5rem] font-semibold capitalize mb-8">
                 {mode === 'update' ? 'Update Task' : 'Add To List'}
               </h1>
-              <label htmlFor='title' className='text-white'>
-                Title
-                <input type="text" className=' inline-block outline-none rounded bg-zinc-600 w-full text-[1rem]  text-white mt-2 mb-6 mx-auto my-0 p-1'
-                  value={title} onChange={(e) => setTitle(e.target.value)}></input>
-              </label>
-              <label htmlFor='Type' className='text-white'>
-                Type
-                <select className='text-white bg-zinc-600 rounded outline-none mt-1 mb-6 mx-auto my-0 ml-2' value={type} onChange={(e) => setType(e.target.value)}>
-                  <option value="Work">
-                    Work
-                  </option>
-                  <option value="School">
-                    School
-                  </option>
-                  <option value="Daily">
-                    Daily
-                  </option>
-                  <option value="Hobbies">
-                    Hobbies
-                  </option>
-                  <option value="Social">
-                    Social
-                  </option>
-                  <option value="Self-improvement">
-                    Self-improvement
-                  </option>
-                  <option value="Other">
-                    Other
-                  </option>
-                </select>
-              </label>
-              <label htmlFor='date' className='text-white ml-4'>
-                To be done by
-                <input type="datetime-local" className='text-white bg-zinc-600 ml-2 w-21 rounded text-center ' value={date} onChange={(e) => setDate(e.target.value)} placeholder='select a date'></input>
-              </label>
-              <label htmlFor='Description' className='text-white block'>
-                Description
-                <input type="text" className='block rounded-lg bg-zinc-600 w-full p-5 mt-2 ' value={description} onChange={(e) => setDescription(e.target.value)}></input>
-              </label>
-              <div className=' flex justify-start items-center gap-4 mt-8'>
-                <Button type="submit">
-                  Submit
-                </Button>
-              </div>
-            </form>
-          </div>
+                        <label htmlFor='title' className='text-white'>
+                            Title
+                            <input type="text" className=' inline-block outline-none rounded bg-zinc-600 w-full text-[1rem]  text-white mt-2 mb-6 mx-auto my-0 p-1'
+                            value={title} onChange={(e) => setTitle(e.target.value)}></input>
+                        </label>
+                        <label htmlFor='Type' className='text-white'>
+                            Type
+                            <select className='text-white bg-zinc-600 rounded outline-none mt-1 mb-6 mx-auto my-0 ml-2' value={type} onChange={(e) =>setType(e.target.value)}>
+                                <option value= "Work">
+                                    Work
+                                </option>
+                                <option value= "School">
+                                    School
+                                </option>
+                                <option value="Daily">
+                                    Daily
+                                </option>
+                                <option value ="Hobbies">
+                                    Hobbies
+                                </option>
+                                <option value="Social">
+                                    Social
+                                </option>
+                                <option value = "Self-improvement">
+                                    Self-improvement
+                                </option>
+                                <option value= "Other">
+                                    Other
+                                </option>
+                            </select>
+                        </label>
+                        <label htmlFor='date' className='text-white ml-4'>
+                            To be done by
+                            <input type="datetime-local" className='text-white bg-zinc-600 ml-2 w-21 rounded text-center ' value={date} onChange={(e)=> setDate(e.target.value)} placeholder='select a date'></input>
+                        </label>
+                        <label htmlFor='Description' className='text-white block'>
+                            Description
+                            <input type="text" className='block rounded-lg bg-zinc-600 w-full p-5 mt-2 ' value= {description}  onChange={(e)=> setDescription(e.target.value)}></input>
+                        </label>
+                        <div className=' flex justify-start items-center gap-4 mt-8'>
+                            <Button type="submit">
+                                Submit
+                            </Button>
+                           
+                        </div>
+                    </form>
+        
+                </div>
         </div>
-      )}
+            
+        )}
     </div>
   )
 }
 
 export default TodoModal;
+

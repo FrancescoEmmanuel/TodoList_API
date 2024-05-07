@@ -11,16 +11,6 @@
   .btn-new {
     @apply bg-blue-500 border border-blue-500 text-white px-2 py-1 rounded-2xl cursor-pointer outline-none transition duration-300 ease-in-out hover:bg-opacity-20 hover:text-blue-500 focus-visible:bg-opacity-20;
   }
-
-  .login-input{
-    @apply mt-1 p-2 w-full rounded-2xl bg-zinc-600 shadow-lg  text-base focus:outline-none focus:border-blue-500 focus:border
-  }
-
-
-
-  .info-container{
-    @apply shadow-lg p-3 rounded-md bg-[#333] flex flex-col items-center justify-center
-  }
   
  
 }
@@ -36,7 +26,6 @@
     /* max-width: 600px; */
     padding: 1rem;
     margin: 0 auto;
-    
   }
 
 
